@@ -22,10 +22,14 @@ def on_message(client, userdata, msg):
     if msg.topic == topic_subscribe:
         if msg.payload.decode() == "on":
             # Perform action to turn switch on
+            os.system('uhubctl -l 1 -a 1')
+            os.system('uhubctl -l 3 -a 1')
             print("Switch turned on")
             client.publish(topic_publish, "on")
         elif msg.payload.decode() == "off":
             # Perform action to turn switch off
+            os.system('uhubctl -l 1 -a 0')
+            os.system('uhubctl -l 3 -a 0')
             print("Switch turned off")
             client.publish(topic_publish, "off")
 
