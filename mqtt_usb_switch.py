@@ -11,6 +11,16 @@ PASSWORD = os.environ.get('USB_SWITCH_PASSWORD')
 topic_subscribe = "usb_switch/set"
 topic_publish = "usb_switch"
 
+def turn_on_ports():
+    # Need to turn on both hub 1 and 3 on RPi 5, changes all ports.
+    os.system('uhubctl -l 1 -a 1')
+    os.system('uhubctl -l 3 -a 1')
+
+def turn_off_ports():
+    # Need to turn off both hub 1 and 3 on RPi 5, changes all ports.
+    os.system('uhubctl -l 1 -a 0')
+    os.system('uhubctl -l 3 -a 0')
+
 # Callback function for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -22,14 +32,12 @@ def on_message(client, userdata, msg):
     if msg.topic == topic_subscribe:
         if msg.payload.decode() == "on":
             # Perform action to turn switch on
-            os.system('uhubctl -l 1 -a 1')
-            os.system('uhubctl -l 3 -a 1')
+            turn_on_ports()
             print("Switch turned on")
             client.publish(topic_publish, "on")
         elif msg.payload.decode() == "off":
             # Perform action to turn switch off
-            os.system('uhubctl -l 1 -a 0')
-            os.system('uhubctl -l 3 -a 0')
+            turn_off_ports()
             print("Switch turned off")
             client.publish(topic_publish, "off")
 
