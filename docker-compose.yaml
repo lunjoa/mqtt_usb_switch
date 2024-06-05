@@ -1,0 +1,13 @@
+services:
+  mqtt_switch:
+    image: mqtt_usb_switch
+    environment:
+      MQTT_SERVER: ${MQTT_SERVER}
+      MQTT_PORT: ${MQTT_PORT}
+      USB_SWITCH_USER: ${USB_SWITCH_USER}
+      USB_SWITCH_PASSWORD: ${USB_SWITCH_PASSWORD}
+      PYTHONUNBUFFERED: 1
+    network_mode: "host"
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+
