@@ -1,11 +1,13 @@
-FROM python:3.11.2
+FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y uhubctl
 
-ADD requirements.txt .
-
-ADD mqtt_usb_switch.py .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r ./requirements.txt
 
-CMD ["python", "./mqtt_usb_switch.py"]
+COPY mqtt_usb_switch.py .
+
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["python", "./mqtt_usb_switch.py"]
