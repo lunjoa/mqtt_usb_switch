@@ -4,8 +4,9 @@ import paho.mqtt.client as mqtt
 # MQTT Broker details
 MQTT_SERVER = os.environ.get('MQTT_SERVER')
 MQTT_PORT = int(os.environ.get('MQTT_PORT'))
-USERNAME = os.environ.get('USB_SWITCH_USER')
+USER = os.environ.get('USB_SWITCH_USER')
 PASSWORD = os.environ.get('USB_SWITCH_PASSWORD')
+
 
 # MQTT topics
 topic_subscribe = "usb_switch/set"
@@ -22,7 +23,7 @@ def turn_off_ports():
     os.system('uhubctl -l 3 -a 0')
 
 # Callback function for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     print("Connected with result code "+str(rc))
     # Subscribe to the control topic
     client.subscribe(topic_subscribe)
@@ -42,12 +43,14 @@ def on_message(client, userdata, msg):
             client.publish(topic_publish, "off")
 
 # Initialize MQTT client
-client = mqtt.Client()
+print(f"Connecting to MQTT broker at {MQTT_SERVER}:{MQTT_PORT} with user {USER}")
+
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.on_message = on_message
 
 # Connect to MQTT Broker
-client.username_pw_set(USERNAME, PASSWORD)  # Set username and password if required
+client.username_pw_set(USER, PASSWORD)  # Set USER and password if required
 client.connect(MQTT_SERVER, MQTT_PORT, 60)
 
 # Loop to stay connected and process messages
