@@ -5,6 +5,9 @@ This script uses uhubctl https://github.com/mvp/uhubctl to do this.
 The script receives on/off commands over MQTT and publishes changed states. 
 Designed for use with Home Assistant. Use case in mind: power down the display of 3D printer Creality Ender 3 when the printer is not in use. Combined with an IoT relay on the mains this keeps the printer fully off when not in use (no more noise or blue light).
 
+# Requirements
+Raspberry Pi 5, untested on any other hardware
+
 # Providing permissions
 The running user needs permission to control the usb controllers. Providing these is prefered, otherwise the script has to be run as root.
 See https://github.com/mvp/uhubctl#linux-usb-permissions
