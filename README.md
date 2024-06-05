@@ -1,12 +1,37 @@
 Toggle the VBUS (5V power) for the USB ports on a raspberry pi 5.
 This script uses uhubctl https://github.com/mvp/uhubctl to do this. 
-See https://github.com/mvp/uhubctl#linux-usb-permissions and https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
+
 
 The script receives on/off commands over MQTT and publishes changed states. 
-Designed for use with Home Assistant. Main use case being to power down the display of 3D printer Creality Ender 3 when the printer is not in use. Combined with an IoT relay on the mains this keeps the printer fully off when not in use (no more noise or blue light).
+Designed for use with Home Assistant. Use case in mind: power down the display of 3D printer Creality Ender 3 when the printer is not in use. Combined with an IoT relay on the mains this keeps the printer fully off when not in use (no more noise or blue light).
+
+# Providing permissions
+The running user needs permission to control the usb controllers. Providing these is prefered, otherwise the script has to be run as root.
+See https://github.com/mvp/uhubctl#linux-usb-permissions
+
+Uhubctl provides these preconfigured udev rules: https://github.com/mvp/uhubctl/blob/master/udev/rules.d/52-usb.rules download them:
+```
+wget "https://github.com/mvp/uhubctl/blob/master/udev/rules.d/52-usb.rules"
+```
+
+Change owner and move them into /etc/udev/rules.d/:
+```
+sudo chown root:root 52-usb.rules && sudo mv 52-usb.rules /etc/udev/rules.d/52-usb.rules
+```
+
+Add the current user to the dialout group to provide the required permissions. Change $USER if you need to give permissions to a user other than the current:
+```
+sudo usermod -a -G dialout $USER
+```
+
+For your udev rule changes to take effect, reboot or run:
+```
+sudo udevadm trigger --attr-match=subsystem=usb
+```
+
 
 # Using docker
-If using docker, make sure the user running docker has permissions as per the link above. Also make sure to create a .env file and specify the environment variables required, there is a provided .env.example. The container had to be run in host network mode to interact with the broker, not sure why. 
+If using docker, make sure the user running docker has permissions as per the instructions above.
 
 Copy .env.example to .env:
 ```
@@ -29,3 +54,4 @@ Compose:
 ```
 docker compose up
 ```
+As in docker-compose.yaml, the container had to be run in host network mode to interact with the broker, not sure why. 
