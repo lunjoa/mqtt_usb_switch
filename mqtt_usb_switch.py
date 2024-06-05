@@ -13,12 +13,12 @@ topic_subscribe = "usb_switch/set"
 topic_publish = "usb_switch"
 
 def turn_on_ports():
-    # Need to turn on both hub 1 and 3 on RPi 5, changes all ports.
+    # Need to turn on both hub 1 and 3 on RPi 5, changes all ports. https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
     os.system('uhubctl -l 1 -a 1')
     os.system('uhubctl -l 3 -a 1')
 
 def turn_off_ports():
-    # Need to turn off both hub 1 and 3 on RPi 5, changes all ports.
+    # Need to turn off both hub 1 and 3 on RPi 5, changes all ports. https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
     os.system('uhubctl -l 1 -a 0')
     os.system('uhubctl -l 3 -a 0')
 
