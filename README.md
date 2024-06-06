@@ -14,7 +14,7 @@ See https://github.com/mvp/uhubctl#linux-usb-permissions
 
 Uhubctl provides these preconfigured udev rules: https://github.com/mvp/uhubctl/blob/master/udev/rules.d/52-usb.rules download them:
 ```
-wget "https://github.com/mvp/uhubctl/blob/master/udev/rules.d/52-usb.rules"
+wget "https://raw.githubusercontent.com/mvp/uhubctl/master/udev/rules.d/52-usb.rules"
 ```
 
 Change owner and move them into /etc/udev/rules.d/:
