@@ -1,6 +1,7 @@
 services:
   mqtt_switch:
     image: mqtt_usb_switch
+    restart: always
     env_file: 
       - .env
     network_mode: "host"
