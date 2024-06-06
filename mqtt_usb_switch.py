@@ -16,10 +16,7 @@ class UhubctlOutputError(Exception):
 
 def toggle_ports(state):
     # Need to turn off both hub 1 and 3 on RPi 5, changes all ports. https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
-    hubcommand1 = f'uhubctl -l 1 -a {int(state)}'
-    hubcommand2 = f'uhubctl -l 3 -a {int(state)}'
-    hubcommands = {hubcommand1, hubcommand2}
-    for hubcommand in hubcommands:
+    for hubcommand in {f'uhubctl -l 1 -a {int(state)}', f'uhubctl -l 3 -a {int(state)}'}:
         run = os.popen(hubcommand)
         output = run.read()
         print(output)
