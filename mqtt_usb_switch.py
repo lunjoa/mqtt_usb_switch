@@ -18,11 +18,12 @@ class UhubctlOutputError(Exception):
 
 
 def set_ports(state):
-    # Need to turn off both hub 1 and 3 on RPi 5, changes all ports. https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
-    for hubcommand in {
+    # Need to turn off both hub 1 and 3 on RPi 5, changes all ports.
+    # See: https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
+    for hubcommand in (
         f"uhubctl -l 1 -a {int(state)}",
         f"uhubctl -l 3 -a {int(state)}",
-    }:
+    ):
         try:
             output = subprocess.run(
                 hubcommand,
@@ -59,7 +60,7 @@ def on_connect(client, _userdata, _flags, rc, properties=None):
 
 
 # Callback function for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
+def on_message(client, _userdata, msg):
     if msg.topic == TOPIC_SUBSCRIBE:
         if msg.payload.decode() == "on":
             # Perform action to turn switch on
