@@ -1,6 +1,13 @@
-FROM python:3.12-slim
+FROM python:3.12-bookworm
 
-RUN apt-get update && apt-get install -y uhubctl
+RUN apt-get update && apt-get install -y libusb-1.0-0-dev
+
+# Have to compile uhubctl from source, there is no release with support for RPi5
+RUN git clone https://github.com/mvp/uhubctl
+
+RUN make -C uhubctl
+
+RUN make -C uhubctl install
 
 COPY requirements.txt .
 
