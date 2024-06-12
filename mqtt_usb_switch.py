@@ -8,6 +8,7 @@ import paho.mqtt.client as mqtt
 TOPIC_SUBSCRIBE = "usb_switch/set"
 TOPIC_PUBLISH = "usb_switch"
 
+
 class UhubctlOutputError(Exception):
     def __init__(self, command, output, message="Unexpected output from uhubctl"):
         self.command = command
@@ -18,9 +19,18 @@ class UhubctlOutputError(Exception):
 
 def set_ports(state):
     # Need to turn off both hub 1 and 3 on RPi 5, changes all ports. https://github.com/mvp/uhubctl?tab=readme-ov-file#raspberry-pi-5
-    for hubcommand in {f'uhubctl -l 1 -a {int(state)}', f'uhubctl -l 3 -a {int(state)}'}:
+    for hubcommand in {
+        f"uhubctl -l 1 -a {int(state)}",
+        f"uhubctl -l 3 -a {int(state)}",
+    }:
         try:
-            output = subprocess.run(hubcommand, capture_output=True, encoding="utf-8", shell=True, check=True)
+            output = subprocess.run(
+                hubcommand,
+                capture_output=True,
+                encoding="utf-8",
+                shell=True,
+                check=True,
+            )
             print(output.stdout)
         except subprocess.CalledProcessError as e:
             raise UhubctlOutputError(hubcommand, e.stderr) from e
@@ -29,7 +39,9 @@ def set_ports(state):
 def ports_status():
     command = "uhubctl"
     try:
-        output = subprocess.run(command, capture_output=True, encoding="utf-8", shell=True, check=True)
+        output = subprocess.run(
+            command, capture_output=True, encoding="utf-8", shell=True, check=True
+        )
         print(output.stdout)
         return "power" in output.stdout
     except subprocess.CalledProcessError as e:
@@ -60,8 +72,9 @@ def on_message(client, userdata, msg):
             print("Switch turned off")
             client.publish(TOPIC_PUBLISH, "off")
 
+
 def exit_handler(status):
-    print(f"Terminating, following user preference USB_SWITCH_EXIT_STATUS: \"{status}\"")
+    print(f'Terminating, following user preference USB_SWITCH_EXIT_STATUS: "{status}"')
     if status == "on":
         print("Making sure to power on USB-ports:")
         set_ports(True)
@@ -72,9 +85,10 @@ def exit_handler(status):
         print("Keeping current USB-ports status:")
         ports_status()
     else:
-        print(f"Unrecognized USB_SWITCH_EXIT_STATUS: \"{status}\"")
+        print(f'Unrecognized USB_SWITCH_EXIT_STATUS: "{status}"')
         print("Keeping current USB-ports status:")
         ports_status()
+
 
 def main():
     # Exit status user preference
@@ -82,10 +96,10 @@ def main():
     atexit.register(exit_handler, EXIT_STATUS)
 
     # MQTT Broker details
-    MQTT_SERVER = os.getenv('MQTT_SERVER')
-    MQTT_PORT = int(os.getenv('MQTT_PORT'))
-    USER = os.getenv('USB_SWITCH_USER')
-    PASSWORD = os.getenv('USB_SWITCH_PASSWORD')
+    MQTT_SERVER = os.getenv("MQTT_SERVER")
+    MQTT_PORT = int(os.getenv("MQTT_PORT"))
+    USER = os.getenv("USB_SWITCH_USER")
+    PASSWORD = os.getenv("USB_SWITCH_PASSWORD")
 
     # Initialize MQTT client
     print(f"Connecting to MQTT broker at {MQTT_SERVER}:{MQTT_PORT} with user {USER}")
