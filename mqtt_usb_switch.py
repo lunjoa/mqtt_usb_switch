@@ -1,3 +1,4 @@
+import atexit
 import os
 import subprocess
 import paho.mqtt.client as mqtt
@@ -59,8 +60,27 @@ def on_message(client, userdata, msg):
             print("Switch turned off")
             client.publish(TOPIC_PUBLISH, "off")
 
+def exit_handler(status):
+    print(f"Terminating, following user preference USB_SWITCH_EXIT_STATUS: \"{status}\"")
+    if status == "on":
+        print("Making sure to power on USB-ports:")
+        set_ports(True)
+    elif status == "off":
+        print("Making sure to power off USB-ports:")
+        set_ports(False)
+    elif status == "keep":
+        print("Keeping current USB-ports status:")
+        ports_status()
+    else:
+        print(f"Unrecognized USB_SWITCH_EXIT_STATUS: \"{status}\"")
+        print("Keeping current USB-ports status:")
+        ports_status()
 
 def main():
+    # Exit status user preference
+    EXIT_STATUS = os.getenv("USB_SWITCH_EXIT_STATUS")
+    atexit.register(exit_handler, EXIT_STATUS)
+
     # MQTT Broker details
     MQTT_SERVER = os.getenv('MQTT_SERVER')
     MQTT_PORT = int(os.getenv('MQTT_PORT'))
