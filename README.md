@@ -42,6 +42,7 @@ cp .env.example .env
 ```
 Edit .env to your parameters:
 ```
+USB_SWITCH_EXIT_STATUS=on # The status to apply on program exit. Possible options: on, off, keep
 MQTT_SERVER=host.domain # The domain name or IP of the broker host
 MQTT_PORT=1883
 USB_SWITCH_USER=user # MQTT username
@@ -55,6 +56,6 @@ docker build -t mqtt_usb_switch .
 
 Compose:
 ```
-docker compose up
+docker compose up -d
 ```
-As in docker-compose.yaml, the container had to be run in host network mode to interact with the broker, not sure why. 
+As in docker-compose.yaml, the container has to be run in host network mode to interact with the broker, not sure why. 
