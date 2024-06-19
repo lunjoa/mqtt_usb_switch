@@ -2,6 +2,8 @@ import atexit
 import os
 import subprocess
 import datetime
+import signal
+import sys
 import paho.mqtt.client as mqtt
 
 
@@ -98,10 +100,15 @@ def exit_handler(status):
         ports_status()
 
 
+def handle_signals(_signum, _frame):
+    sys.exit(0)
+
+
 def main():
     # Exit status user preference
     EXIT_STATUS = os.getenv("USB_SWITCH_EXIT_STATUS")
     atexit.register(exit_handler, EXIT_STATUS)
+    signal.signal(signal.SIGTERM, handle_signals)
 
     # MQTT Broker details
     MQTT_SERVER = os.getenv("MQTT_SERVER")
