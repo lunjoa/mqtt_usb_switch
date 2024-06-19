@@ -1,6 +1,7 @@
 import atexit
 import os
 import subprocess
+import datetime
 import paho.mqtt.client as mqtt
 
 
@@ -14,7 +15,11 @@ class UhubctlOutputError(Exception):
         self.command = command
         self.output = output
         self.message = message
-        super().__init__(f"{message}: '{command}' output was '{output}'")
+        super().__init__(f"{message}: {command} output was {output}")
+
+
+def print_with_timestamp(text):
+    print(f"{datetime.datetime.now()} {text}")
 
 
 def set_ports(state):
@@ -43,7 +48,7 @@ def ports_status():
         output = subprocess.run(
             command, capture_output=True, encoding="utf-8", shell=True, check=True
         )
-        print(output.stdout)
+        print_with_timestamp(f":\n{output.stdout}")
         return "power" in output.stdout
     except subprocess.CalledProcessError as e:
         raise UhubctlOutputError(command, e.stderr) from e
@@ -51,7 +56,7 @@ def ports_status():
 
 # Callback function for when the client receives a CONNACK response from the server.
 def on_connect(client, _userdata, _flags, rc, properties=None):
-    print(f"Connected with result code {rc}.")
+    print_with_timestamp(f"Connected with result code {rc}.")
     # Subscribe to the control topic
     client.subscribe(TOPIC_SUBSCRIBE)
     status = ports_status()
@@ -65,17 +70,19 @@ def on_message(client, _userdata, msg):
         if msg.payload.decode() == "on":
             # Perform action to turn switch on
             set_ports(True)
-            print("Switch turned on")
+            print_with_timestamp("Switch turned on")
             client.publish(TOPIC_PUBLISH, "on")
         elif msg.payload.decode() == "off":
             # Perform action to turn switch off
             set_ports(False)
-            print("Switch turned off")
+            print_with_timestamp("Switch turned off")
             client.publish(TOPIC_PUBLISH, "off")
 
 
 def exit_handler(status):
-    print(f'Terminating, following user preference USB_SWITCH_EXIT_STATUS: "{status}"')
+    print_with_timestamp(
+        f"Terminating, following user preference USB_SWITCH_EXIT_STATUS: {status}"
+    )
     if status == "on":
         print("Making sure to power on USB-ports:")
         set_ports(True)
@@ -86,7 +93,7 @@ def exit_handler(status):
         print("Keeping current USB-ports status:")
         ports_status()
     else:
-        print(f'Unrecognized USB_SWITCH_EXIT_STATUS: "{status}"')
+        print(f"Unrecognized USB_SWITCH_EXIT_STATUS: {status}")
         print("Keeping current USB-ports status:")
         ports_status()
 
@@ -103,7 +110,9 @@ def main():
     PASSWORD = os.getenv("USB_SWITCH_PASSWORD")
 
     # Initialize MQTT client
-    print(f"Connecting to MQTT broker at {MQTT_SERVER}:{MQTT_PORT} with user {USER}")
+    print_with_timestamp(
+        f"Connecting to MQTT broker at {MQTT_SERVER}:{MQTT_PORT} with user {USER}"
+    )
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
